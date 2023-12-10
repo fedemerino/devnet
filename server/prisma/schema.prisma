@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  username  String
+  password  String
+  bio String?
+  image String? 
+  created_at DateTime @default(now())
+  isAdmin Boolean @default(false)
+  role Role []
+  posts Post[]
+  comments Comment[]
+  notification Notification[]
+  favs Fav[]
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String
+  comments Comment[]
+  favs      Fav[]
+  score    Int     @default(0)
+  hashtags Hashtag[]
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  content   String
+  post      Post    @relation(fields: [postId], references: [id])
+  postId    Int
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model Fav {
+  id        Int     @id @default(autoincrement())
+  post      Post    @relation(fields: [postId], references: [id])
+  postId    Int
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model Hashtag {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  posts     Post[]
+}
+
+model Notification {
+  id        Int     @id @default(autoincrement())
+  content   String
+  read      Boolean @default(false)
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+model Role {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  users     User[]
+}
